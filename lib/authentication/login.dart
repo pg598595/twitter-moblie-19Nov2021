@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:twitter/authentication/sign_up.dart';
 import 'package:twitter/authentication/user_profile.dart';
+import 'package:twitter/data/user_details.dart';
 import 'package:twitter/utils/firebase_authenication.dart';
 import 'package:twitter/utils/image_constant.dart';
 import 'package:twitter/utils/validator.dart';
@@ -33,7 +34,11 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => ProfilePage(
-            user: user,
+            userDetails: UserDetails(
+              name: user.displayName,
+              email: user.email,
+              id: "tttttt",
+            ),
           ),
         ),
       );
@@ -146,7 +151,11 @@ class _LoginPageState extends State<LoginPage> {
                                                 .pushReplacement(
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ProfilePage(user: user),
+                                                    ProfilePage(userDetails: UserDetails(
+                                                      name: user.displayName,
+                                                      email: user.email,
+                                                      id: "tttttt",
+                                                    ),),
                                               ),
                                             );
                                           }

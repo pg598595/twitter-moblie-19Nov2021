@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:twitter/authentication/user_profile.dart';
+import 'package:twitter/data/user_details.dart';
 import 'package:twitter/utils/firebase_authenication.dart';
+import 'package:twitter/utils/firestore_database.dart';
 import 'package:twitter/utils/image_constant.dart';
 import 'package:twitter/utils/validator.dart';
 
@@ -132,13 +134,25 @@ class _RegisterPageState extends State<SignUpPage> {
                                 });
 
                                 if (user != null) {
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ProfilePage(user: user),
-                                    ),
-                                    ModalRoute.withName('/'),
-                                  );
+                                  await FireStoreDatabase.insertNewUser(
+                                          name: user.displayName!,
+                                          email: user.email!)
+                                      .then((value) => {
+                                            Navigator.of(context)
+                                                .pushAndRemoveUntil(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProfilePage(
+                                                  userDetails: UserDetails(
+                                                    name: user.displayName,
+                                                    email: user.email,
+                                                    id: value!.id,
+                                                  ),
+                                                ),
+                                              ),
+                                              ModalRoute.withName('/'),
+                                            )
+                                          });
                                 }
                               }
                             },
