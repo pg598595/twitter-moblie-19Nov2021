@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:twitter/data/user_details.dart';
 import 'package:twitter/home/home_page.dart';
 import 'package:twitter/utils/firebase_authenication.dart';
-import 'package:twitter/utils/firestore_database.dart';
+import 'package:twitter/utils/fireStore_database.dart';
 import 'package:twitter/utils/image_constant.dart';
 import 'package:twitter/utils/validator.dart';
 

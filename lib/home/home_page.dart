@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:twitter/authentication/user_profile.dart';
 import 'package:twitter/data/user_details.dart';
 import 'package:twitter/home/add_post.dart';
-import 'package:twitter/utils/firestore_database.dart';
+import 'package:twitter/utils/data_constants.dart';
+import 'package:twitter/utils/fireStore_database.dart';
 import 'package:twitter/utils/image_constant.dart';
 import 'package:twitter/utils/common_utils.dart';
 
@@ -29,6 +30,20 @@ class _HomePageState extends State<HomePage> {
     if (_currentUser.id == "") {
       getId();
     }
+
+    Future.delayed(Duration.zero, () {
+      FirebaseFirestore.instance.collection(tweets).snapshots().listen((event) {
+        event.docChanges.forEach((res) {
+          print(res.type);
+          if (res.type == DocumentChangeType.added ||
+              res.type == DocumentChangeType.modified) {
+            // added
+            getAllPosts();
+          }
+        });
+      });
+    });
+
     super.initState();
   }
 
@@ -99,7 +114,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: buildBottomNavigationBar(),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : buildStreamBuilder(),
+          : buildRefreshIndicator(),
       floatingActionButton: buildFABButtonToAddNewPost(context),
     );
   }
@@ -120,25 +135,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  StreamBuilder<QuerySnapshot> buildStreamBuilder() {
-    return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('tweets').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          print(snapshot.data!.docs.length);
-          if (snapshot.data!.docs.length != tweetIds.length) {
-            getAllPosts();
-          }
-          return RefreshIndicator(
-            onRefresh: () {
-              return getAllPosts();
-            },
-            child: ListView.builder(
-                itemCount: listOfTweets.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return buildItem(index, context);
-                }),
-          );
-        });
+  // StreamBuilder<QuerySnapshot> buildStreamBuilder() {
+  //   return StreamBuilder<QuerySnapshot>(
+  //       stream: FirebaseFirestore.instance.collection(tweets).snapshots(),
+  //       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  //         print(snapshot.data!.docs.length);
+  //         if (snapshot.data!.docs.length != tweetIds.length) {
+  //           getAllPosts();
+  //         }
+  //         return buildRefreshIndicator();
+  //       });
+  // }
+
+  RefreshIndicator buildRefreshIndicator() {
+    return RefreshIndicator(
+      onRefresh: () {
+        return getAllPosts();
+      },
+      child: ListView.builder(
+          itemCount: listOfTweets.length,
+          itemBuilder: (BuildContext context, int index) {
+            return buildItem(index, context);
+          }),
+    );
   }
 
   Column buildItem(int index, BuildContext context) {
@@ -148,7 +167,7 @@ class _HomePageState extends State<HomePage> {
           leading: CircleAvatar(
             backgroundColor: Colors.blueAccent,
             child: Text(
-              (listOfTweets[index]!["userDetails"]["name"][0])
+              (listOfTweets[index]![userDetails][name][0])
                   .toString()
                   .toUpperCase(),
               style:
@@ -158,7 +177,7 @@ class _HomePageState extends State<HomePage> {
           title: buildTitleRow(index),
           subtitle: buildSubTitle(index),
           trailing:
-              listOfTweets[index]!["userDetails"]["email"] == _currentUser.email
+              listOfTweets[index]![userDetails][email] == _currentUser.email
                   ? buildPopupMenuButton(context, index)
                   : null,
         ),
@@ -187,7 +206,7 @@ class _HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          capitalize(listOfTweets[index]!["userDetails"]["name"].toString()),
+          capitalize(listOfTweets[index]![userDetails][name].toString()),
           style: TextStyle(
               color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
         ),
@@ -196,7 +215,7 @@ class _HomePageState extends State<HomePage> {
         ),
         Text(
           timeCalculateSinceDate(
-              (listOfTweets[index]!["postedAt"]).toDate().toString()),
+              (listOfTweets[index]![postedAt]).toDate().toString()),
           style: TextStyle(
             color: Colors.grey,
             fontSize: 12,

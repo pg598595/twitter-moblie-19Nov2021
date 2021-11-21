@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:twitter/data/user_details.dart';
 import 'package:twitter/utils/common_utils.dart';
-import 'package:twitter/utils/firestore_database.dart';
+import 'package:twitter/utils/fireStore_database.dart';
 
 import 'login.dart';
 

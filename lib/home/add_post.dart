@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:twitter/data/user_details.dart';
-import 'package:twitter/utils/firestore_database.dart';
+import 'package:twitter/utils/fireStore_database.dart';
 
 class AddPostPage extends StatefulWidget {
   final UserDetails userDetails;
@@ -111,12 +110,12 @@ class _AddPostPageState extends State<AddPostPage> {
       onPressed: () {
         if (widget.isEdit) {
           FireStoreDatabase.editPost(
-                  tweetText: _postTextController.text.trim(),
+                  tweet: _postTextController.text.trim(),
                   tweetId: widget.tweetID)
               .then((value) => {Navigator.pop(context)});
         } else {
           FireStoreDatabase.addNewPost(
-                  tweetText: _postTextController.text.trim(),
+                  tweet: _postTextController.text.trim(),
                   details: _currentUser)
               .then((value) => {Navigator.pop(context)});
         }

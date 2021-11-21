@@ -14,24 +14,24 @@ class FireStoreDatabase {
   }) async {
     final fireStoreInstance = FirebaseFirestore.instance;
     return fireStoreInstance.collection(users).add({
-      "name": name,
-      "email": email,
+      name: name,
+      email: email,
     });
   }
 
   //add new post of user
   static Future<DocumentReference?> addNewPost({
-    required String? tweetText,
+    required String? tweet,
     required UserDetails? details,
   }) async {
     final fireStoreInstance = FirebaseFirestore.instance;
     fireStoreInstance.collection(tweets).add({
-      "tweetText": tweetText,
-      "userDetails": {
-        "name": details!.name,
-        "email": details.email,
+      tweetText: tweet,
+      userDetails: {
+        name: details!.name,
+        email: details.email,
       },
-      "postedAt": DateTime.now(),
+      postedAt: DateTime.now(),
     }).then((value) => {print(value)});
   }
 
@@ -39,8 +39,8 @@ class FireStoreDatabase {
   static Future<QuerySnapshot?> getDetails(String email) async {
     final fireStoreInstance = FirebaseFirestore.instance;
     return fireStoreInstance
-        .collection("users")
-        .where("email", isEqualTo: email)
+        .collection(users)
+        .where(email, isEqualTo: email)
         .get();
   }
 
@@ -49,18 +49,18 @@ class FireStoreDatabase {
     final fireStoreInstance = FirebaseFirestore.instance;
     return fireStoreInstance
         .collection(tweets)
-        .orderBy('postedAt', descending: true)
+        .orderBy(postedAt, descending: true)
         .get();
   }
 
   //add new post of user
   static Future<DocumentReference?> editPost({
-    required String? tweetText,
+    required String? tweet,
     required String? tweetId,
   }) async {
     final fireStoreInstance = FirebaseFirestore.instance;
     fireStoreInstance.collection(tweets).doc(tweetId).update({
-      "tweetText": tweetText,
+      tweetText: tweet,
     }).then((value) => {Toast.displayToast("Updated successfully")});
   }
 
@@ -75,4 +75,9 @@ class FireStoreDatabase {
         .delete()
         .then((value) => {Toast.displayToast("Deleted successfully")});
   }
+
+
+
+
+
 }
