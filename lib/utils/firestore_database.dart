@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:twitter/data/user_details.dart';
 import 'package:twitter/utils/display_toast.dart';
@@ -65,7 +67,7 @@ class FireStoreDatabase {
   }
 
 
-  //add new post of user
+  //delete post
   static Future<DocumentReference?> deletePost({
     required String? tweetId,
   }) async {
@@ -74,4 +76,6 @@ class FireStoreDatabase {
       DisplayToast.displayToast("Deleted successfully")
     });
   }
+
+
 }

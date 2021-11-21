@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:twitter/authentication/user_profile.dart';
 import 'package:twitter/data/user_details.dart';
@@ -28,6 +29,10 @@ class _HomePageState extends State<HomePage> {
       print("Checking id");
       getId();
     }
+
+    // FireStoreDatabase.getUpdates().then((value) => {
+    //   getAllPosts()
+    // });
 
     super.initState();
   }
@@ -76,13 +81,11 @@ class _HomePageState extends State<HomePage> {
         ),
         leadingWidth: 45,
         leading: GestureDetector(
-          onTap: (){
-            Navigator.of(context)
-                .push(
+          onTap: () {
+            Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => UserProfilePage(
                   userDetails: _currentUser,
-
                 ),
               ),
             );
@@ -125,116 +128,133 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: () {
-                return getAllPosts();
-              },
-              child: ListView.builder(
-                  itemCount: listOfTweets.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Column(
-                      children: [
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blueAccent,
-                            child: Text(
-                              (listOfTweets[index]!["userDetails"]["name"][0])
-                                  .toString()
-                                  .toUpperCase(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                          ),
-                          title: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                capitalize(listOfTweets[index]!["userDetails"]
-                                        ["name"]
-                                    .toString()),
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                timeCalculateSinceDate(
-                                    (listOfTweets[index]!["postedAt"])
-                                        .toDate()
-                                        .toString()),
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
+          : StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance.collection('tweets').snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                print(snapshot.data!.docs.length);
+                if (snapshot.data!.docs.length != tweetIds.length){
+                  getAllPosts();
+                }
+                return RefreshIndicator(
+                  onRefresh: () {
+                    return getAllPosts();
+                  },
+                  child: ListView.builder(
+                      itemCount: listOfTweets.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Column(
+                          children: [
+                            ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.blueAccent,
+                                child: Text(
+                                  (listOfTweets[index]!["userDetails"]["name"]
+                                          [0])
+                                      .toString()
+                                      .toUpperCase(),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
                                 ),
                               ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                listOfTweets[index]!["tweetText"],
-                                style: TextStyle(color: Colors.black87, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                          trailing: listOfTweets[index]!["userDetails"]["email"] ==
-                                  _currentUser.email
-                              ? PopupMenuButton(
-                                  color: Colors.white,
-                                  itemBuilder: (context) => [
-                                    PopupMenuItem<int>(
-                                      value: 0,
-                                      child: Text(
-                                        "Edit",
-                                      ),
+                              title: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    capitalize(
+                                        listOfTweets[index]!["userDetails"]
+                                                ["name"]
+                                            .toString()),
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    timeCalculateSinceDate(
+                                        (listOfTweets[index]!["postedAt"])
+                                            .toDate()
+                                            .toString()),
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
                                     ),
-                                    PopupMenuItem<int>(
-                                      value: 0,
-                                      child: Text(
-                                        "Delete",
-                                      ),
-                                    ),
-                                  ],
-                                  onSelected: (item) => {
-                                    if (item == 0)
-                                      {
-                                        Navigator.of(context)
-                                            .push(
-                                              MaterialPageRoute(
-                                                builder: (context) => AddPostPage(
-                                                  userDetails: _currentUser,
-                                                  isEdit: true,
-                                                  tweetedText: listOfTweets[index]![
-                                                      "tweetText"],
-                                                  tweetID: tweetIds[index],
-                                                ),
-                                              ),
-                                            )
-                                            .then((value) => {getAllPosts()})
-                                      }
-                                    else
-                                      {
-                                        FireStoreDatabase.deletePost(
-                                                tweetId: tweetIds[index])
-                                            .then((value) => {getAllPosts()})
-                                      }
-                                  },
-                                )
-                              : null,
-                        ),
-                        Divider(),
-                      ],
-                    );
-
-                  }),
-            ),
+                                  ),
+                                ],
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    listOfTweets[index]!["tweetText"],
+                                    style: TextStyle(
+                                        color: Colors.black87, fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              trailing: listOfTweets[index]!["userDetails"]
+                                          ["email"] ==
+                                      _currentUser.email
+                                  ? PopupMenuButton(
+                                      color: Colors.white,
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem<int>(
+                                          value: 0,
+                                          child: Text(
+                                            "Edit",
+                                          ),
+                                        ),
+                                        PopupMenuItem<int>(
+                                          value: 0,
+                                          child: Text(
+                                            "Delete",
+                                          ),
+                                        ),
+                                      ],
+                                      onSelected: (item) => {
+                                        if (item == 0)
+                                          {
+                                            Navigator.of(context)
+                                                .push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        AddPostPage(
+                                                      userDetails: _currentUser,
+                                                      isEdit: true,
+                                                      tweetedText: listOfTweets[
+                                                          index]!["tweetText"],
+                                                      tweetID: tweetIds[index],
+                                                    ),
+                                                  ),
+                                                )
+                                                .then(
+                                                    (value) => {getAllPosts()})
+                                          }
+                                        else
+                                          {
+                                            FireStoreDatabase.deletePost(
+                                                    tweetId: tweetIds[index])
+                                                .then(
+                                                    (value) => {getAllPosts()})
+                                          }
+                                      },
+                                    )
+                                  : null,
+                            ),
+                            Divider(),
+                          ],
+                        );
+                      }),
+                );
+              }),
       floatingActionButton: FloatingActionButton(
         // isExtended: true,
         child: Icon(Icons.add),
