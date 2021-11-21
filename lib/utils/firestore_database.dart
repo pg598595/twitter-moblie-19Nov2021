@@ -63,4 +63,15 @@ class FireStoreDatabase {
       DisplayToast.displayToast("Updated successfully")
     });
   }
+
+
+  //add new post of user
+  static Future<DocumentReference?> deletePost({
+    required String? tweetId,
+  }) async {
+    final fireStoreInstance = FirebaseFirestore.instance;
+    fireStoreInstance.collection(tweets).doc(tweetId).delete().then((value) => {
+      DisplayToast.displayToast("Deleted successfully")
+    });
+  }
 }

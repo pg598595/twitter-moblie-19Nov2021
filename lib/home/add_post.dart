@@ -9,7 +9,11 @@ class AddPostPage extends StatefulWidget {
   final String tweetedText;
   final String tweetID;
 
-  const AddPostPage({required this.userDetails, this.isEdit : false, this.tweetedText : "", this.tweetID:""});
+  const AddPostPage(
+      {required this.userDetails,
+      this.isEdit: false,
+      this.tweetedText: "",
+      this.tweetID: ""});
 
   @override
   _AddPostPageState createState() => _AddPostPageState();
@@ -20,10 +24,11 @@ class _AddPostPageState extends State<AddPostPage> {
 
   late UserDetails _currentUser;
   bool isTweetButtonEnabled = false;
+
   @override
   void initState() {
     _currentUser = widget.userDetails;
-    if(widget.isEdit){
+    if (widget.isEdit) {
       _postTextController.text = widget.tweetedText;
     }
     super.initState();
@@ -36,7 +41,7 @@ class _AddPostPageState extends State<AddPostPage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           leading: GestureDetector(
-            onTap: (){
+            onTap: () {
               Navigator.pop(context);
             },
             child: Icon(
@@ -48,28 +53,28 @@ class _AddPostPageState extends State<AddPostPage> {
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: ElevatedButton(
-
                 onPressed: () {
-                  if(widget.isEdit){
-                    FireStoreDatabase.editPost(tweetText: _postTextController.text.trim(), tweetId: widget.tweetID).then((value) =>
-                    {
-                      Navigator.pop(context)
-                    });
-                  }else{
-                    FireStoreDatabase.addNewPost(tweetText: _postTextController.text.trim(), details: _currentUser).then((value) =>
-                    {
-                      Navigator.pop(context)
-                    });
+                  if (widget.isEdit) {
+                    FireStoreDatabase.editPost(
+                            tweetText: _postTextController.text.trim(),
+                            tweetId: widget.tweetID)
+                        .then((value) => {Navigator.pop(context)});
+                  } else {
+                    FireStoreDatabase.addNewPost(
+                            tweetText: _postTextController.text.trim(),
+                            details: _currentUser)
+                        .then((value) => {Navigator.pop(context)});
                   }
-
                 },
                 child: Text(
-                  widget.isEdit?"Edit":
-                  'Tweet',
-                  style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                  widget.isEdit ? "Update" : 'Post',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 style: ButtonStyle(
-                  backgroundColor: isTweetButtonEnabled?MaterialStateProperty.all(Colors.blue):MaterialStateProperty.all(Colors.blue.withOpacity(0.5)),
+                  backgroundColor: isTweetButtonEnabled
+                      ? MaterialStateProperty.all(Colors.blue)
+                      : MaterialStateProperty.all(Colors.blue.withOpacity(0.5)),
                 ),
               ),
             )
@@ -97,8 +102,8 @@ class _AddPostPageState extends State<AddPostPage> {
                     child: TextFormField(
                       controller: _postTextController,
                       maxLength: 280,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: "What's Happening",
@@ -107,11 +112,11 @@ class _AddPostPageState extends State<AddPostPage> {
                         labelStyle: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 20),
                       ),
-                      onChanged: (v){
+                      onChanged: (v) {
                         setState(() {
-                          if(_postTextController.text.isNotEmpty){
+                          if (_postTextController.text.isNotEmpty) {
                             isTweetButtonEnabled = true;
-                          }else{
+                          } else {
                             isTweetButtonEnabled = false;
                           }
                         });
