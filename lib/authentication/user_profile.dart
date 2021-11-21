@@ -5,16 +5,16 @@ import 'package:twitter/utils/firestore_database.dart';
 
 import 'login.dart';
 
-class ProfilePage extends StatefulWidget {
+class UserProfilePage extends StatefulWidget {
   final UserDetails userDetails;
 
-  const ProfilePage({required this.userDetails});
+  const UserProfilePage({required this.userDetails});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _UserProfilePageState createState() => _UserProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _UserProfilePageState extends State<UserProfilePage> {
   bool _isSendingVerification = false;
   bool _isSigningOut = false;
 
@@ -23,7 +23,22 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     _currentUser = widget.userDetails;
+    if (_currentUser.id == "") {
+      print("Checking id");
+      getId();
+    }
     super.initState();
+  }
+
+  Future<void> getId() async {
+    await FireStoreDatabase.getDetails(_currentUser.email!).then((value) => {
+          value!.docs.forEach((result) {
+            print(result.id);
+            setState(() {
+              _currentUser.id = result.id;
+            });
+          })
+        });
   }
 
   @override
@@ -46,27 +61,14 @@ class _ProfilePageState extends State<ProfilePage> {
               style: Theme.of(context).textTheme.bodyText1,
             ),
             Text(
-              _currentUser.id!,
+              _currentUser.id ?? "",
               style: Theme.of(context)
                   .textTheme
                   .bodyText1!
                   .copyWith(color: Colors.green),
             ),
             SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                await FireStoreDatabase.addNewPost(
-                    tweetText: "Testing te",
-                    userId: widget.userDetails.id);
-              },
-              child: Text('Add post'),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-            ),
+
             _isSigningOut
                 ? CircularProgressIndicator()
                 : ElevatedButton(

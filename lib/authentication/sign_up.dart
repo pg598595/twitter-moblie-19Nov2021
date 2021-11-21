@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:twitter/authentication/user_profile.dart';
 import 'package:twitter/data/user_details.dart';
+import 'package:twitter/home/home_page.dart';
 import 'package:twitter/utils/firebase_authenication.dart';
 import 'package:twitter/utils/firestore_database.dart';
 import 'package:twitter/utils/image_constant.dart';
@@ -142,11 +143,11 @@ class _RegisterPageState extends State<SignUpPage> {
                                                 .pushAndRemoveUntil(
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ProfilePage(
+                                                    HomePage(
                                                   userDetails: UserDetails(
                                                     name: user.displayName,
                                                     email: user.email,
-                                                    id: value!.id,
+                                                    id: "",
                                                   ),
                                                 ),
                                               ),
