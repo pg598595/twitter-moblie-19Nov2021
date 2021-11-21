@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:twitter/authentication/login.dart';
 import 'package:twitter/data/user_details.dart';
+import 'package:twitter/home/add_post.dart';
 import 'package:twitter/utils/firestore_database.dart';
 import 'package:twitter/utils/image_constant.dart';
-import 'package:twitter/utils/time_calulate.dart';
+import 'package:twitter/utils/common_utils.dart';
 
 class HomePage extends StatefulWidget {
   final UserDetails userDetails;
@@ -17,10 +17,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isSigningOut = false;
   bool _isLoading = false;
   late UserDetails _currentUser;
   List<Map<String, dynamic>?> listOfTweets = [];
+  List<String> tweetIds = [];
 
   @override
   void initState() {
@@ -51,16 +51,18 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> getAllPosts() async {
     listOfTweets.clear();
+    tweetIds.clear();
     await FireStoreDatabase.getAllPosts().then((value) => {
           value!.docs.forEach((result) {
-            print(result.data());
-
+            print(result.id);
             setState(() {
               _isLoading = false;
               listOfTweets.add(result.data());
+              tweetIds.add(result.id);
             });
           })
         });
+    setState(() {});
   }
 
   @override
@@ -79,76 +81,124 @@ class _HomePageState extends State<HomePage> {
           child: CircleAvatar(
             backgroundColor: Colors.pink,
             child: Text(
-              _currentUser.name![0],
+              _currentUser.name![0].toUpperCase(),
               style:
                   TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        iconSize: 30,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications_none),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.email_outlined),
+            label: '',
+          ),
+        ],
+      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-
-            onRefresh: () {
-
-              return getAllPosts(); },
-            child: ListView.builder(
-                itemCount: listOfTweets.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blueAccent,
-                      child: Text(
-                        (listOfTweets[index]!["userDetails"]["name"][0])
-                            .toString()
-                            .toUpperCase(),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white),
+              onRefresh: () {
+                return getAllPosts();
+              },
+              child: ListView.builder(
+                  itemCount: listOfTweets.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blueAccent,
+                        child: Text(
+                          (listOfTweets[index]!["userDetails"]["name"][0])
+                              .toString()
+                              .toUpperCase(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
                       ),
-                    ),
-                    title: Row(
-                      children: [
-                        Text(
-                          listOfTweets[index]!["userDetails"]["name"],
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          TimeCalculate.timeCalculateSinceDate(
-                              (listOfTweets[index]!["postedAt"])
-                                  .toDate()
-                                  .toString()),
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
+                      title: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            capitalize(listOfTweets[index]!["userDetails"]
+                                    ["name"]
+                                .toString()),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      ],
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          listOfTweets[index]!["tweetText"],
-                          style: TextStyle(color: Colors.green, fontSize: 15),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            timeCalculateSinceDate(
+                                (listOfTweets[index]!["postedAt"])
+                                    .toDate()
+                                    .toString()),
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            listOfTweets[index]!["tweetText"],
+                            style: TextStyle(color: Colors.green, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                      trailing: listOfTweets[index]!["userDetails"]["email"] ==
+                              _currentUser.email
+                          ? GestureDetector(
+                          onTap: (){
+                            Navigator.of(context)
+                                .push(
+                              MaterialPageRoute(
+                                builder: (context) => AddPostPage(userDetails: _currentUser,isEdit:true,tweetedText: listOfTweets[index]!["tweetText"],tweetID:tweetIds[index],),
+                              ),
+                            )
+                                .then((value) => {getAllPosts()});
+                          },
+                          child: Icon(Icons.edit))
+                          : null,
+                    );
+                  }),
+            ),
       floatingActionButton: FloatingActionButton(
         // isExtended: true,
         child: Icon(Icons.add),
         backgroundColor: Colors.blue,
         onPressed: () {
-          FireStoreDatabase.addNewPost(tweetText: "Hello", details: _currentUser);
+          Navigator.of(context)
+              .push(
+                MaterialPageRoute(
+                  builder: (context) => AddPostPage(userDetails: _currentUser),
+                ),
+              )
+              .then((value) => {getAllPosts()});
         },
       ),
     );
