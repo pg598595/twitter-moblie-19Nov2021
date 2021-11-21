@@ -88,10 +88,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           ),
                         );
                       },
-                      child: Text('Sign out',style: TextStyle(fontSize: 20),),
+                      child: Text(
+                        'Sign out',
+                        style: TextStyle(fontSize: 20),
+                      ),
                       style: ElevatedButton.styleFrom(
                         primary: Colors.red,
-
                       ),
                     ),
             ],

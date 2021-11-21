@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:twitter/authentication/user_profile.dart';
 import 'package:twitter/data/user_details.dart';
 import 'package:twitter/home/home_page.dart';
 import 'package:twitter/utils/firebase_authenication.dart';
@@ -50,89 +49,24 @@ class _RegisterPageState extends State<SignUpPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Create your account",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                ),
-                Form(
-                  key: _registerFormKey,
-                  child: Column(
-                    children: <Widget>[
-                      TextFormField(
-                        controller: _nameTextController,
-                        focusNode: _focusName,
-                        validator: (value) => Validator.validateName(
-                          name: value!,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Name",
-                          errorBorder: UnderlineInputBorder(
-                            borderRadius: BorderRadius.circular(6.0),
-                            borderSide: BorderSide(
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        controller: _emailTextController,
-                        focusNode: _focusEmail,
-                        validator: (value) => Validator.validateEmail(
-                          email: value!,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Email Address",
-                          errorBorder: UnderlineInputBorder(
-                            borderRadius: BorderRadius.circular(6.0),
-                            borderSide: BorderSide(
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        controller: _passwordTextController,
-                        focusNode: _focusPassword,
-                        obscureText: true,
-                        validator: (value) => Validator.validatePassword(
-                          password: value!,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Password",
-                          errorBorder: UnderlineInputBorder(
-                            borderRadius: BorderRadius.circular(6.0),
-                            borderSide: BorderSide(
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                buildTextSignUp(),
+                buildFormForSignUp(),
                 Row(
                   children: [
                     _isProcessing
                         ? CircularProgressIndicator()
                         : ElevatedButton(
                             onPressed: () async {
-                              setState(() {
-                                _isProcessing = true;
-                              });
-
                               if (_registerFormKey.currentState!.validate()) {
+                                setState(() {
+                                  _isProcessing = true;
+                                });
                                 User? user =
                                     await FireAuth.registerUsingEmailPassword(
                                   name: _nameTextController.text,
                                   email: _emailTextController.text,
                                   password: _passwordTextController.text,
                                 );
-
-                                setState(() {
-                                  _isProcessing = false;
-                                });
 
                                 if (user != null) {
                                   await FireStoreDatabase.insertNewUser(
@@ -142,8 +76,7 @@ class _RegisterPageState extends State<SignUpPage> {
                                             Navigator.of(context)
                                                 .pushAndRemoveUntil(
                                               MaterialPageRoute(
-                                                builder: (context) =>
-                                                    HomePage(
+                                                builder: (context) => HomePage(
                                                   userDetails: UserDetails(
                                                     name: user.displayName,
                                                     email: user.email,
@@ -169,6 +102,74 @@ class _RegisterPageState extends State<SignUpPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Form buildFormForSignUp() {
+    return Form(
+      key: _registerFormKey,
+      child: Column(
+        children: <Widget>[
+          TextFormField(
+            controller: _nameTextController,
+            focusNode: _focusName,
+            validator: (value) => Validator.validateName(
+              name: value!,
+            ),
+            decoration: InputDecoration(
+              hintText: "Name",
+              errorBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(6.0),
+                borderSide: BorderSide(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16.0),
+          TextFormField(
+            controller: _emailTextController,
+            focusNode: _focusEmail,
+            validator: (value) => Validator.validateEmail(
+              email: value!,
+            ),
+            decoration: InputDecoration(
+              hintText: "Email Address",
+              errorBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(6.0),
+                borderSide: BorderSide(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16.0),
+          TextFormField(
+            controller: _passwordTextController,
+            focusNode: _focusPassword,
+            obscureText: true,
+            validator: (value) => Validator.validatePassword(
+              password: value!,
+            ),
+            decoration: InputDecoration(
+              hintText: "Password",
+              errorBorder: UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(6.0),
+                borderSide: BorderSide(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Text buildTextSignUp() {
+    return Text(
+      "Create your account",
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
     );
   }
 }

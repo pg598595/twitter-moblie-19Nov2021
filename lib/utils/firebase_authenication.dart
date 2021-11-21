@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:twitter/utils/display_toast.dart';
+import 'package:twitter/utils/toast.dart';
 
 class FireAuth {
   // For registering a new user on app
@@ -23,9 +23,9 @@ class FireAuth {
       user = auth.currentUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        DisplayToast.displayToast("The password provided is too weak.");
+        Toast.displayToast("The password provided is too weak.");
       } else if (e.code == 'email-already-in-use') {
-        DisplayToast.displayToast("The account already exists for this email.");
+        Toast.displayToast("The account already exists for this email.");
       }
     } catch (e) {
       print(e);
@@ -50,9 +50,9 @@ class FireAuth {
       user = userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        DisplayToast.displayToast("No user found for this email.");
+        Toast.displayToast("No user found for this email.");
       } else if (e.code == 'wrong-password') {
-        DisplayToast.displayToast("Wrong password");
+        Toast.displayToast("Wrong password");
       }
     }
 

@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:twitter/authentication/sign_up.dart';
-import 'package:twitter/authentication/user_profile.dart';
 import 'package:twitter/data/user_details.dart';
 import 'package:twitter/home/home_page.dart';
 import 'package:twitter/utils/firebase_authenication.dart';
@@ -76,52 +75,14 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 25.0, top: 25),
-                    child: Text(
-                      "See what\'s happening in the world right now.",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
-                    ),
-                  ),
+                  getWelcomeText(),
                   Form(
                     key: _formKey,
                     child: Column(
                       children: <Widget>[
-                        TextFormField(
-                          controller: _emailTextController,
-                          focusNode: _focusEmail,
-                          validator: (value) => Validator.validateEmail(
-                            email: value!,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "Email Address",
-                            errorBorder: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(6.0),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ),
+                        buildTextFormFieldEmail(),
                         SizedBox(height: 8.0),
-                        TextFormField(
-                          controller: _passwordTextController,
-                          focusNode: _focusPassword,
-                          obscureText: true,
-                          validator: (value) => Validator.validatePassword(
-                            password: value!,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "Password",
-                            errorBorder: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(6.0),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ),
+                        buildTextFormFieldPassword(),
                         SizedBox(height: 24.0),
                         _isProcessing
                             ? CircularProgressIndicator()
@@ -178,6 +139,55 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             )));
+  }
+
+  TextFormField buildTextFormFieldPassword() {
+    return TextFormField(
+      controller: _passwordTextController,
+      focusNode: _focusPassword,
+      obscureText: true,
+      validator: (value) => Validator.validatePassword(
+        password: value!,
+      ),
+      decoration: InputDecoration(
+        hintText: "Password",
+        errorBorder: UnderlineInputBorder(
+          borderRadius: BorderRadius.circular(6.0),
+          borderSide: BorderSide(
+            color: Colors.red,
+          ),
+        ),
+      ),
+    );
+  }
+
+  TextFormField buildTextFormFieldEmail() {
+    return TextFormField(
+      controller: _emailTextController,
+      focusNode: _focusEmail,
+      validator: (value) => Validator.validateEmail(
+        email: value!,
+      ),
+      decoration: InputDecoration(
+        hintText: "Email Address",
+        errorBorder: UnderlineInputBorder(
+          borderRadius: BorderRadius.circular(6.0),
+          borderSide: BorderSide(
+            color: Colors.red,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding getWelcomeText() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 25.0, top: 25),
+      child: Text(
+        "See what\'s happening in the world right now.",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
+      ),
+    );
   }
 
   Widget _getSignUpAccount() => Container(

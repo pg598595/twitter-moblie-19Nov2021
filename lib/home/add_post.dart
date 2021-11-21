@@ -52,31 +52,7 @@ class _AddPostPageState extends State<AddPostPage> {
           actions: [
             Padding(
               padding: const EdgeInsets.all(10.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  if (widget.isEdit) {
-                    FireStoreDatabase.editPost(
-                            tweetText: _postTextController.text.trim(),
-                            tweetId: widget.tweetID)
-                        .then((value) => {Navigator.pop(context)});
-                  } else {
-                    FireStoreDatabase.addNewPost(
-                            tweetText: _postTextController.text.trim(),
-                            details: _currentUser)
-                        .then((value) => {Navigator.pop(context)});
-                  }
-                },
-                child: Text(
-                  widget.isEdit ? "Update" : 'Post',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                style: ButtonStyle(
-                  backgroundColor: isTweetButtonEnabled
-                      ? MaterialStateProperty.all(Colors.blue)
-                      : MaterialStateProperty.all(Colors.blue.withOpacity(0.5)),
-                ),
-              ),
+              child: buildPostButton(context),
             )
           ],
         ),
@@ -84,49 +60,76 @@ class _AddPostPageState extends State<AddPostPage> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.pink,
-                    child: Text(
-                      _currentUser.name![0].toUpperCase(),
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _postTextController,
-                      maxLength: 280,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "What's Happening",
-                        hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                        labelStyle: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      ),
-                      onChanged: (v) {
-                        setState(() {
-                          if (_postTextController.text.isNotEmpty) {
-                            isTweetButtonEnabled = true;
-                          } else {
-                            isTweetButtonEnabled = false;
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              buildTextFieldView(),
             ],
           ),
         ));
+  }
+
+  Row buildTextFieldView() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          backgroundColor: Colors.pink,
+          child: Text(
+            _currentUser.name![0].toUpperCase(),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+        SizedBox(
+          width: 15,
+        ),
+        Expanded(
+          child: TextFormField(
+            controller: _postTextController,
+            maxLength: 280,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: "What's Happening",
+              hintStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            onChanged: (v) {
+              setState(() {
+                if (_postTextController.text.isNotEmpty) {
+                  isTweetButtonEnabled = true;
+                } else {
+                  isTweetButtonEnabled = false;
+                }
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  ElevatedButton buildPostButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        if (widget.isEdit) {
+          FireStoreDatabase.editPost(
+                  tweetText: _postTextController.text.trim(),
+                  tweetId: widget.tweetID)
+              .then((value) => {Navigator.pop(context)});
+        } else {
+          FireStoreDatabase.addNewPost(
+                  tweetText: _postTextController.text.trim(),
+                  details: _currentUser)
+              .then((value) => {Navigator.pop(context)});
+        }
+      },
+      child: Text(
+        widget.isEdit ? "Update" : 'Post',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+      style: ButtonStyle(
+        backgroundColor: isTweetButtonEnabled
+            ? MaterialStateProperty.all(Colors.blue)
+            : MaterialStateProperty.all(Colors.blue.withOpacity(0.5)),
+      ),
+    );
   }
 }

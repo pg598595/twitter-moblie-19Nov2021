@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:twitter/data/user_details.dart';
-import 'package:twitter/utils/display_toast.dart';
+import 'package:twitter/utils/toast.dart';
 
 import 'data_constants.dart';
 
@@ -61,21 +61,18 @@ class FireStoreDatabase {
     final fireStoreInstance = FirebaseFirestore.instance;
     fireStoreInstance.collection(tweets).doc(tweetId).update({
       "tweetText": tweetText,
-    }).then((value) => {
-      DisplayToast.displayToast("Updated successfully")
-    });
+    }).then((value) => {Toast.displayToast("Updated successfully")});
   }
-
 
   //delete post
   static Future<DocumentReference?> deletePost({
     required String? tweetId,
   }) async {
     final fireStoreInstance = FirebaseFirestore.instance;
-    fireStoreInstance.collection(tweets).doc(tweetId).delete().then((value) => {
-      DisplayToast.displayToast("Deleted successfully")
-    });
+    fireStoreInstance
+        .collection(tweets)
+        .doc(tweetId)
+        .delete()
+        .then((value) => {Toast.displayToast("Deleted successfully")});
   }
-
-
 }
